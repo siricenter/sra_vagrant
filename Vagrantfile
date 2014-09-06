@@ -113,6 +113,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 						]
 					}
 				],
+			},
+			postgresql: {
+				version: '9.3',
+				password: {
+					postgres: 'password'
+				}
 			}
 		}
 
@@ -121,7 +127,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			"recipe[apt]",
 			"recipe[git]",
 			"recipe[tmux]",
-			#"recipe[postgresql]",
+			"recipe[postgresql::server]",
+			"recipe[postgresql::client]",
+			"recipe[rvm::vagrant]",
 			"recipe[rvm::user]",
 			"recipe[devenvset]",
 			"recipe[vim_chef::source]"
