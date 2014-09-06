@@ -74,6 +74,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 	config.vm.provision :chef_solo do |chef|
 		chef.json = {
+			:vagrant => {
+				:system_chef_solo => '/opt/chef/bin/chef-solo'
+			},
 			tmux: {
 				version: "1.8",
 				install_method: :source
@@ -91,6 +94,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			vim: {
 				version: "7-4-430"
 			},
+			rvm: {
+				system_chef_solo: '/opt/chef/bin/chef-solo',
+				user_rubies: [
+					"2.0.0",
+					"2.1.0",
+				],
+				user_global_gems: [
+					{name: :bundler}
+				],
+				user_installs: [
+					{ 
+						user: :vagrant,
+						default_ruby: '2.1.0',
+						rubies: [
+							'2.0.0',
+							'2.1.0'
+						]
+					}
+				],
+			}
 		}
 
 		chef.run_list = [
@@ -99,7 +122,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			"recipe[git]",
 			"recipe[tmux]",
 			#"recipe[postgresql]",
-			#"recipe[rvm::vagrant]",
+			"recipe[rvm::user]",
 			"recipe[devenvset]",
 			"recipe[vim_chef::source]"
 		]
