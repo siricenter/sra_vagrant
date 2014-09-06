@@ -31,6 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	# any other machines on the same network, but cannot be accessed (through this
 	# network interface) by any external networks.
 	config.vm.network :private_network, type: "dhcp"
+	config.ssh.forward_agent = true
 
 	# Create a forwarded port mapping which allows access to a specific port
 	# within the machine from a port on the host machine. In the example below,
@@ -72,15 +73,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	# to skip installing and copying to Vagrant's shelf.
 	# config.berkshelf.except = []
 
+	config.vm.provision :shell, path: 'provision.sh'
+
 	config.vm.provision :chef_solo do |chef|
 		chef.json = {
-			:vagrant => {
-				:system_chef_solo => '/opt/chef/bin/chef-solo'
-			},
 			tmux: {
 				version: "1.8",
 				install_method: :source
-
 			},
 			devenvset: {
 				owner: "vagrant",
@@ -95,24 +94,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 				version: "7-4-430"
 			},
 			rvm: {
-				system_chef_solo: '/opt/chef/bin/chef-solo',
-				user_rubies: [
-					"2.0.0",
-					"2.1.0",
-				],
-				user_global_gems: [
-					{name: :bundler}
-				],
-				user_installs: [
-					{ 
-						user: :vagrant,
-						default_ruby: '2.1.0',
-						rubies: [
-							'2.0.0',
-							'2.1.0'
-						]
-					}
-				],
+				vagrant: {
+					system_chef_solo: '/opt/chef/bin/chef-solo',
+				},
+				default_ruby: '2.0.0'
 			},
 			postgresql: {
 				version: '9.3',
@@ -126,13 +111,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			"recipe[build-essential]",
 			"recipe[apt]",
 			"recipe[git]",
-			"recipe[tmux]",
+			#"recipe[tmux]",
 			"recipe[postgresql::server]",
 			"recipe[postgresql::client]",
 			"recipe[rvm::vagrant]",
-			"recipe[rvm::user]",
+			"recipe[rvm::system]",
 			"recipe[devenvset]",
-			"recipe[vim_chef::source]"
+			#"recipe[vim_chef::source]",
+			"recipe[sra_chef]",
 		]
 	end
 end
